@@ -1,0 +1,112 @@
+## If you want more than 1 replica you will have to use a ReadWriteMany volume
+replicaCount: 1
+
+image:
+  repository: stevearc/pypicloud
+  tag: 1.1.7
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+pypicloud:
+  # Extra config
+  extra_config: |-
+    # Common: https://pypicloud.readthedocs.io/en/latest/topics/configuration.html#pypicloud
+    pypi.fallback = redirect
+    pypi.fallback_url = https://pypi.org/simple
+  
+    # Storage: https://pypicloud.readthedocs.io/en/latest/topics/configuration.html#storage
+    pypi.storage = file
+    storage.dir = /var/lib/pypicloud/packages
+
+    
+    # Caching Backends: https://pypicloud.readthedocs.io/en/latest/topics/cache.html#cache
+    pypi.db = sql
+    db.url = sqlite:////var/lib/pypicloud/db.sqlite
+
+    # Admin user: admin
+    auth.admins =
+      admin
+
+    # Admin password: admin
+    # Generate password: `docker run -it --rm stevearc/pypicloud ppc-gen-password`
+    user.admin = $6$rounds=20500$77tky8215KCincCc$R.aBvWrJEeXAwdPn2dhyLaQZe4LWHwuZmzeFPJGsEP.VltU61lgHjdOKFdgnGKJ9umN7IQntKUxPczKuKJ2kn1
+
+    # Generate key: `python3 -c "import os,base64;print(base64.b64encode(os.urandom(32)).decode('utf-8'))"`
+    session.encrypt_key = If/8u0ukhlmQUc9Y94ulWIr77ku/DbN/yvxoxemsYhs=
+    session.validate_key = PPscvYUpevC6GhN0da892sL0HCtCRLTVulhAN1fR/WQ=
+    session.secure = False
+
+
+podAnnotations: {}
+
+podLabels: {}
+
+ingress:
+  enabled: false
+  labels: {}
+  annotations: {}
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
+  # path: "/pypi"
+  tls: []
+  # - secretName: pypi.cluster.local
+  #   hosts:
+  #     - pypi.cluster.local
+
+service:
+  type: ClusterIP
+  port: 8080
+  annotations: {}
+  labels: {}
+  clusterIP: ""
+  ## List of IP addresses at which the pypi service is available
+  ## Ref: https://kubernetes.io/docs/user-guide/services/#external-ips
+  externalIPs: []
+  loadBalancerIP: ""
+  loadBalancerSourceRanges: []
+  # nodePort: 30000
+
+persistence:
+  enabled: false
+  ## PyPi server packages Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # storageClass: "-"
+  ##
+  ## If you want to reuse an existing claim, you can pass the name of the PVC
+  ## using the existingClaim variable
+  # existingClaim: your-claim
+  ##
+  ## The Access mode should be ReadWriteMany if you decide to scale up to more
+  ## than one replica
+  accessMode: ReadWriteOnce
+  size: 5Gi
+  mountPropagation: None
+
+securityContext:
+  enabled: true
+  runAsUser: 0
+  runAsGroup: 0
+  fsGroup: 1000
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

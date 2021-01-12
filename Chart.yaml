@@ -1,0 +1,13 @@
+apiVersion: v1
+appVersion: 1.1.7
+description: PyPI compatible server for pip or easy_install with Web UI.
+home: https://github.com/stevearc/pypicloud
+maintainers:
+- email: swulling@gmail.com
+  name: Tao Yang
+name: pypicloud
+sources:
+- https://github.com/ninehills/pypicloud-charts
+- https://github.com/stevearc/pypicloud
+- https://github.com/stevearc/pypicloud-docker
+version: 1.0.0
